@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            background-image: url('bot.jpg');
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+        }
+        .chat-container {
+            width: 350px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .chat-box {
+            height: 300px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+        .user-input {
+            display: flex;
+            margin-top: 10px;
+        }
+        .user-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .user-input button {
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h3>AI Chatbot</h3>
+        <div class="chat-box" id="chatBox"></div>
+        <div class="user-input">
+            <input type="text" id="userMessage" placeholder="Type a message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const OPENAI_API_KEY = "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";
+
+        async function sendMessage() {
+            let userInput = document.getElementById("userMessage").value;
+            if (userInput.trim() === "") return;
+            let chatBox = document.getElementById("chatBox");
+
+            // Show user message
+            chatBox.innerHTML += `<div><strong>You:</strong> ${userInput}</div>`;
+            document.getElementById("userMessage").value = "";
+
+            try {
+                let response = await fetch("https://api.openai.com/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${OPENAI_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-3.5-turbo",
+                        messages: [{ role: "user", content: userInput }],
+                        max_tokens: 100
+                    })
+                });
+
+                let data = await response.json();
+                let botReply = `<div><strong>Bot:</strong> ${data.choices[0].message.content}</div>`;
+                chatBox.innerHTML += botReply;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch (error) {
+                console.error("Error:", error);
+                chatBox.innerHTML += `<div><strong>Bot:</strong> Error fetching response.</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
